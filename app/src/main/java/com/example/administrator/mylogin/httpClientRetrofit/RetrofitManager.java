@@ -1,6 +1,12 @@
 package com.example.administrator.mylogin.httpClientRetrofit;
 
+import android.util.Log;
+
+import com.example.administrator.mylogin.Until.NetUtil;
+import com.example.administrator.mylogin.activity.MyApplication;
+import com.example.administrator.mylogin.api.Api;
 import com.example.administrator.mylogin.server.IHttpInterface;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +22,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import static java.security.AccessController.getContext;
 
@@ -25,8 +32,6 @@ import static java.security.AccessController.getContext;
 
 public class RetrofitManager {
 
-    //地址
-    public static final String BASE_PHONENUMINFO_URL = "http://api.k780.com:88";
 
     //短缓存有效期为1分钟
     public static final int CACHE_STALE_SHORT = 60;
@@ -42,24 +47,34 @@ public class RetrofitManager {
     private static OkHttpClient mOkHttpClient;
     private IHttpInterface iHttpInterface;
 
-    public static RetrofitManager builder() {
-        return new RetrofitManager();
+    public static RetrofitManager builder(boolean isCache) {
+        return new RetrofitManager(isCache);
     }
 
     public IHttpInterface getService() {
         return iHttpInterface;
     }
 
-    private RetrofitManager() {
-        initOkHttpClient();
+    private RetrofitManager(boolean isCache) {
+        if (isCache){
+            initOkHttpClient();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_PHONENUMINFO_URL)
-                .client(mOkHttpClient)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        iHttpInterface = retrofit.create(IHttpInterface.class);
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Api.BaseUrl)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            iHttpInterface = retrofit.create(IHttpInterface.class);
+        }else {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .baseUrl(Api.BaseUrl)
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            iHttpInterface = retrofit.create(IHttpInterface.class);
+        }
     }
 
     private void initOkHttpClient() {
@@ -70,8 +85,9 @@ public class RetrofitManager {
                 if (mOkHttpClient == null) {
 
                     // 指定缓存路径,缓存大小100Mb
-                    final File baseDir = getContext().getCacheDir();
-                    Cache cache = new Cache(new File(getContext().getCacheDir(), "HttpCache"),
+                    final File baseDir = MyApplication.getContext().getCacheDir();
+                    Log.i("tags","缓存地址"+baseDir.getAbsolutePath());
+                    Cache cache = new Cache(new File(baseDir, "HttpCache"),
                             1024 * 1024 * 100);
                     mOkHttpClient = new OkHttpClient.Builder()
                             .cache(cache)

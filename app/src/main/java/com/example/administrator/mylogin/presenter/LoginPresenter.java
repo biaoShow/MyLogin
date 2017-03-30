@@ -1,7 +1,5 @@
 package com.example.administrator.mylogin.presenter;
 
-import com.example.administrator.mylogin.bean.User;
-import com.example.administrator.mylogin.bean.beanUser;
 import com.example.administrator.mylogin.model.ILoginModel;
 import com.example.administrator.mylogin.model.LoginModelIpml;
 import com.example.administrator.mylogin.view.ILoginView;
@@ -11,7 +9,7 @@ import com.example.administrator.mylogin.view.ILoginView;
  */
 
 public class LoginPresenter extends BasePresenter<ILoginView> {
-    private ILoginModel iLoginModel = new LoginModelIpml();
+    private ILoginModel iLoginModel = new LoginModelIpml(false);
     private ILoginView iLoginView;
 
     public LoginPresenter(ILoginView iLoginView) {

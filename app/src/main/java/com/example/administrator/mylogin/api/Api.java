@@ -5,6 +5,6 @@ package com.example.administrator.mylogin.api;
  */
 
 public class Api {
-    public final static String BaseUrl = "http://192.168.1.33/index/";
+    public final static String BaseUrl = "http://192.168.1.36/index/";
 
 }

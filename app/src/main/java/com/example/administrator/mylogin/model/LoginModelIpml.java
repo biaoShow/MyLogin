@@ -25,7 +25,12 @@ import rx.schedulers.Schedulers;
  * Created by Administrator on 2017/3/28 0028.
  */
 
-public class LoginModelIpml implements ILoginModel {
+public class LoginModelIpml extends BaseModel implements ILoginModel{
+
+    public LoginModelIpml(boolean isCache) {
+        super(isCache);
+    }
+
     @Override
     public void login(String username, String password, final OnLoginListener onLoginListener) {
         /*HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
@@ -59,13 +64,8 @@ public class LoginModelIpml implements ILoginModel {
                     }
                 });*/
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(Api.BaseUrl)
-                .build();
-        IHttpInterface iHttpInterface = retrofit.create(IHttpInterface.class);
+
+        IHttpInterface iHttpInterface = retrofitManager.getService();
         Observable<String> stringObservable =  iHttpInterface.postRxLogin(username,password);
         stringObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
